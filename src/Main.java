@@ -2,40 +2,71 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+
+        StepTracker stepTracker = new StepTracker();
         Scanner scanner = new Scanner(System.in);
-        StepTracker stepTracker = new StepTracker(scanner);
+        printMenu();
+        int userInput = scanner.nextInt();
 
-        boolean isRunning = true;
-        while (isRunning) {
-            printMenu();
-            int choice = scanner.nextInt();
-            switch (choice) {
-                case 1:
-                    stepTracker.addNewNumberStepsPerDay();
-                    break;
-                case 2:
-                    stepTracker.changeStepGoal();
-                    break;
-                case 3:
-                    stepTracker.printStatisticsForMonth();
-                    break;
-                case 4:
-                    isRunning = false;
-                    break;
-                default:
-                    System.out.println("Некорректный выбор. Попробуйте еще раз.");
+        while (userInput != 0) {
+
+            if (userInput == 1) {
+                System.out.print("Введите номер месяца (0 - январь ... 11 - декабрь): ");
+                int month = scanner.nextInt();
+                if (month < 0 || month > 11) {
+                    System.out.print("Такого месяца не существует, попробуйте снова!: ");
+                    continue;
+                }
+                System.out.print("Введите число месяца (с 1 по 30): ");
+                int day = scanner.nextInt();
+                if (day < 1 || day > 30) {
+                    System.out.print("Такого дня не существует, попробуйте снова!: ");
+                    continue;
+                }
+                System.out.print("Введите число шагов за этот день: ");
+                int step = scanner.nextInt();
+                if (step < 0) {
+                    System.out.print("Введите положительное число!: ");
+                    continue;
+                } else {
+                    stepTracker.selectPushDay(month, day, step);
+                }
+            } else if (userInput == 2) {
+                System.out.print("Введите номер месяца (0 - январь ... 11 - декабрь): ");
+                int month = scanner.nextInt();
+                if (month < 0 || month > 11) {
+                    System.out.print("Такого месяца не существует, попробуйте снова!: ");
+                    continue;
+                }
+                stepTracker.statusForMonth(month);
+            } else if (userInput == 3) {
+                System.out.println("Выберите новую цель шагов в день:\n");
+                int countStepPerDay = scanner.nextInt();
+                if (countStepPerDay < 0) {
+                    System.out.println("Цель шагов не может быть отрицательной, попробуйте снова!\n");
+                    continue;
+                }
+                stepTracker.maxStepPerDay(countStepPerDay);
+            } else if (userInput == 4) {
+                System.out.println("Выход");
+                break;
+            } else {
+                System.out.println("Извините, такой команды пока нет.\n");
             }
-        }
 
+            printMenu();
+            userInput = scanner.nextInt();
+        }
         scanner.close();
+        System.out.println("Программа завершена");
     }
 
-    private static void printMenu() {
-        System.out.println("\nМеню:");
-        System.out.println("1. Ввести количество шагов за определенный день.");
-        System.out.println("2. Изменить цель по количеству шагов в день.");
-        System.out.println("3. Напечатать статистику за определенный месяц.");
-        System.out.println("4. Выйти из приложения.");
-        System.out.print("Ваш выбор: ");
+    public static void printMenu() {
+        System.out.println("Что вы хотите сделать? \n" +
+                "1 - Ввести количество шагов за определённый день\n" +
+                "2 - Напечатать статистику за определённый месяц\n" +
+                "3 - Изменить цель по количеству шагов в день\n" +
+                "4 - Выход");
+        System.out.print("Введите команду: ");
     }
 }

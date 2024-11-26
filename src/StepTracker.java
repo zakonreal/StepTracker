@@ -1,95 +1,90 @@
-import java.util.Scanner;
-
 public class StepTracker {
-    private final MonthData[] monthToData;
-    private int goalStepsPerDay;
-    private Scanner scanner;
-    private Converter converter;
+    private int maxStepPerDay = 10000;
+    private int[][] tableDays = new int[30][11];
 
-    public StepTracker(Scanner scanner) {
-        this.scanner = scanner;
-        this.monthToData = new MonthData[12];
-        for (int i = 0; i < 12; i++) {
-            monthToData[i] = new MonthData();
-        }
-        this.goalStepsPerDay = 10000; // Цель по умолчанию
-        this.converter = new Converter();
+    void selectPushDay(int month, int day, int step){
+        tableDays[day - 1][month - 1] = step;
     }
 
-    // Метод для ввода нового количества шагов за день
-    public void addNewNumberStepsPerDay() {
-        System.out.println("Введите номер месяца (1-12): ");
-        int month = scanner.nextInt();
-        if (month < 1 || month > 12) {
-            System.out.println("Ошибка! Номер месяца должен быть от 1 до 12.");
-            return;
+    /**
+     * statusForMonth() выводит статистику по выбранному месяцу
+     */
+    void statusForMonth(int month){
+        int count = 0;
+        int maxStep = 0;
+
+        Converter converter = new Converter();
+
+        System.out.println("Вы выбрали " + month + "-й месяц!");
+
+        //Количество пройденных шагов по дням
+        for (int i = 0; i < 30; i++) {
+            if (i < 29){
+                System.out.print((i+1) + " день: " + tableDays[i][month-1] + ", ");
+            } else {
+                System.out.println((i+1) + " день: " + tableDays[i][month-1]);
+            }
+
         }
 
-        System.out.println("Введите номер дня (1-30): ");
-        int day = scanner.nextInt();
-        if (day < 1 || day > 30) {
-            System.out.println("Ошибка! День должен быть от 1 до 30.");
-            return;
+        //Общее количество шагов за месяц
+        for (int i = 0; i<30; i++){
+            count += tableDays[i][month-1];
         }
+        System.out.println("Общее количество шагов: " + count);
 
-        System.out.println("Введите количество шагов: ");
-        int steps = scanner.nextInt();
-        if (steps < 0) {
-            System.out.println("Ошибка! Количество шагов должно быть неотрицательным.");
-            return;
+        //Максимальное пройденное количество шагов в месяце
+        for (int i = 0; i<30; i++){
+            if (tableDays[i][month-1] > maxStep) {
+                maxStep = tableDays[i][month-1];
+            }
         }
+        System.out.println("Максимальное пройденное количество шагов: " + maxStep);
 
-        monthToData[month - 1].setStepsForDay(day, steps);
-        System.out.println("Данные успешно сохранены.");
+        //Среднее количество шагов
+        System.out.println("Среднее число шагов: " + count/30);
+
+        //Пройденная дистанция (в км)
+        System.out.println("Общая пройденная дистанция: " + converter.stepToDistance(count) + " км");
+
+        //Количество сожженных килокалорий
+        System.out.println("Количество сожженных килокалорий: " + converter.stepToCalorie(count) + " ККал");
+
+        //Лучшая серия
+        System.out.println("Лучшая серия шагов: " + bestSeriesSteps(month));
     }
 
-    // Метод для изменения цели по количеству шагов в день
-    public void changeStepGoal() {
-        System.out.println("Введите новую цель по количеству шагов в день: ");
-        int newGoal = scanner.nextInt();
-        if (newGoal <= 0) {
-            System.out.println("Ошибка! Цель должна быть положительной.");
-            return;
+    /**
+     * bestSeriesSteps() - вычисляет наибольшее количество подряд идущих дней, при условии,
+     * что каждый из этих дней совпадает или превосходит по количеству
+     * шагов дневную цель maxStepPerDay.
+     */
+    int bestSeriesSteps(int month){
+        int seriesBuf = 0;
+        int series = 0;
+        for (int i=0; i < 30; i++){
+            if (tableDays[i][month-1] >= maxStepPerDay){
+                seriesBuf++;
+            } else {
+                if (series < seriesBuf) {
+                    series = seriesBuf;
+                    seriesBuf = 0;
+                }
+            }
         }
-        this.goalStepsPerDay = newGoal;
-        System.out.println("Цель изменена на " + newGoal + " шагов в день.");
+        if (series < seriesBuf) {
+            series = seriesBuf;
+        }
+        return series;
     }
 
-    // Метод для вывода статистики за определенный месяц
-    public void printStatisticsForMonth() {
-        System.out.println("Введите номер месяца (1-12), за который хотите получить статистику: ");
-        int month = scanner.nextInt();
-        if (month < 1 || month > 12) {
-            System.out.println("Ошибка! Номер месяца должен быть от 1 до 12.");
-            return;
-        }
-
-        MonthData data = monthToData[month - 1];
-        int totalSteps = data.sumStepsFromMonth();
-
-        // Вывод статистики
-        data.printDaysAndStepsFromMonth(); // Количество пройденных шагов по дням
-        System.out.println("\nОбщее количество шагов за месяц: " + totalSteps);
-        System.out.println("Максимальное количество шагов в месяце: " + data.maxSteps());
-        System.out.println("Среднее количество шагов: " + ((double) totalSteps / 30));
-        System.out.println("Пройденная дистанция (км): " + converter.convertToKm(totalSteps));
-        System.out.println("Количество сожжённых килокалорий: " + converter.convertStepsToKilocalories(totalSteps));
-        System.out.println("Лучшая серия: " + data.bestSeries(this.goalStepsPerDay) + " дней");
-    }
-
-    private int findMaxSteps(MonthData data) {
-        int max = Integer.MIN_VALUE;
-        for (int i = 1; i <= 30; i++) {
-            max = Math.max(max, data.getStepsForDay(i));
-        }
-        return max;
-    }
-
-    private int findMinSteps(MonthData data) {
-        int min = Integer.MAX_VALUE;
-        for (int i = 1; i <= 30; i++) {
-            min = Math.min(min, data.getStepsForDay(i));
-        }
-        return min;
+    /**
+     * Новая дневная цель шагов
+     */
+    void maxStepPerDay(int countStepPerDay){
+        maxStepPerDay = countStepPerDay;
     }
 }
+
+
+
