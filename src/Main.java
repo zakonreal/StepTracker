@@ -3,11 +3,9 @@ import java.util.InputMismatchException;
 
 public class Main {
     public static void main(String[] args) {
-
         StepTracker stepTracker = new StepTracker();
         Scanner scanner = new Scanner(System.in);
         printMenu();
-
         int userInput = getValidInt(scanner);
 
         while (userInput != 4) {
