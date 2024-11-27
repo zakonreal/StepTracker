@@ -1,6 +1,6 @@
 public class StepTracker {
     private int maxStepPerDay = 10000;
-    private int[][] tableDays = new int[30][11];
+    private int[][] tableDays = new int[30][12];
 
     void selectPushDay(int month, int day, int step){
         tableDays[day - 1][month - 1] = step;
