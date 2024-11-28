@@ -40,10 +40,10 @@ public class Main {
                 }
                 stepTracker.statusForMonth(month);
             } else if (userInput == 3) {
-                System.out.println("Выберите новую цель шагов в день:\n");
+                System.out.print("Выберите новую цель шагов в день: ");
                 int countStepPerDay = getValidInt(scanner);
                 if (countStepPerDay < 0) {
-                    System.err.println("Цель шагов не может быть отрицательной, попробуйте снова!\n");
+                    System.err.print("Цель шагов не может быть отрицательной, попробуйте снова!");
                     continue;
                 }
                 stepTracker.maxStepPerDay(countStepPerDay);
